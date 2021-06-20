@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    0.5
+// @version    0.6
 // @description  hide properties on daft.ie
 // @match      *://*.daft.ie/*
 // @require    http://code.jquery.com/jquery-3.0.0.min.js
@@ -43,9 +43,11 @@
   // Initialize a box containing a house.
   function initializeBox(ele)
   {
+    // Each box has an image (either to the left, or large image above)
+    // then a line for the price, and a line for the address
     var $box = $(ele);
-    var $titleBox = $box.find('> .search_result_title_box');
-    var $urlBox = $titleBox.find('> h2 > a');
+    var $titleBox = $box.find('.PropertyInformationCommonStyles__addressCopy--link');
+    var $urlBox = $titleBox;
 
     var price = $box.find('.info-box > *:first-child').text();
     var url = $urlBox.attr('href');
@@ -55,12 +57,11 @@
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    var $box = $('#address_box')
-    if ($box.length == 0) {
+    var $titleBox = $('.PropertyMainInformation__address')
+    if ($titleBox.length == 0) {
       return;
     }
 
-    var $titleBox = $box.find('h1');
     var url = window.location.pathname;
 
     initializeControls(url, $titleBox, undefined, undefined);
@@ -86,7 +87,7 @@
     $titleBox.after($descContainer);
 
     var $checkbox = $('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
-    var $descDiv = $('<textarea class="desc" style="resize:none; width:550px">' + desc + '</textarea>');
+    var $descDiv = $('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
 
     $checkboxContainer.append($checkbox);
     if (price) {
@@ -115,11 +116,13 @@
     }
 
     if (doShow) {
-      $box.find('> .image').show();
-      $box.find('> .text-block').show();
+      $box.find('.PropertyImage__mainImageContainerStandard').show();
+      $box.find('.PropertyImage__mainImageContainer').show();
+      $box.find('.brandLink').show();
     } else {
-      $box.find('> .image').hide();
-      $box.find('> .text-block').hide();
+      $box.find('.PropertyImage__mainImageContainerStandard').hide();
+      $box.find('.PropertyImage__mainImageContainer').hide();
+      $box.find('.brandLink').hide();
     }
   }
 
@@ -148,9 +151,6 @@
   // Get jQuery object of all boxes containing a house.
   function getBoxes()
   {
-    return $('.box').not('.clear');
-    // .filter(function(i, ele) {
-      // return ele.children[0].nodeName == 'H2';
-    // });
+    return $('.PropertyCardContainer__container');
   }
 })();
