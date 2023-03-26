@@ -75,7 +75,7 @@
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    let $titleBox = $('*[data-testid="address"]')
+    let $titleBox = $('*[data-testid="address"],*[data-testid="alt-title"]')
     if ($titleBox.length == 0) {
       return;
     }
