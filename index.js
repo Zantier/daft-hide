@@ -46,10 +46,14 @@
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
     var $box = $(ele);
-    var $titleBox = $box.find('.PropertyInformationCommonStyles__addressCopy--link');
-    var $urlBox = $titleBox;
+    var $titleBox = $box.find('.TitleBlock__Address-sc-1avkvav-8');
+    ensureSingleElement({ $titleBox });
+    var $urlBox = $box.find('> a');
+    ensureSingleElement({ $urlBox });
 
-    var price = $box.find('.info-box > *:first-child').text();
+    var $priceBox = $box.find('.TitleBlock__Price-sc-1avkvav-4');
+    ensureSingleElement({ $priceBox });
+    var price = $priceBox.text();
     var url = $urlBox.attr('href');
 
     initializeControls(url, $titleBox, price, $box);
@@ -57,7 +61,7 @@
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    var $titleBox = $('.PropertyMainInformation__address')
+    var $titleBox = $('.TitleBlock__Address-sc-1avkvav-8')
     if ($titleBox.length == 0) {
       return;
     }
@@ -151,6 +155,22 @@
   // Get jQuery object of all boxes containing a house.
   function getBoxes()
   {
-    return $('.PropertyCardContainer__container');
+    return $('.SearchPage__Result-gg133s-2');
+  }
+
+  // Ensure that the jQuery object has only a single element
+  // elementObject: { elementName: $element }
+  function ensureSingleElement(elementObject)
+  {
+    let elementName = Object.keys(elementObject)[0];
+    let $element = Object.values(elementObject)[0];
+    if ($element.length !== 1) {
+      log(`Wrong ${elementName} count: ${$element.length}`);
+    }
+  }
+
+  function log(msg)
+  {
+    console.error(`daft_hide: ${msg}`);
   }
 })();
