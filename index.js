@@ -24,10 +24,10 @@
     // Logging this first helps to see if the script is completely broken
     // because daft has updated
     let pageType = 'none';
-    if ($('.SearchPage__SearchResults-gg133s-3').length > 0) {
+    if ($('*[data-testid="results"]').length === 1) {
       pageType = 'search';
     }
-    if ($('.styles__HeaderImageWrapper-sc-15fxapi-14').length > 0) {
+    if ($('*[data-testid="header-image-component"]').length === 1) {
       pageType = 'single';
     }
     log(`pageType: ${pageType}`);
@@ -60,12 +60,12 @@
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
     let $box = $(ele);
-    let $titleBox = $box.find('.TitleBlock__Address-sc-1avkvav-8');
+    let $titleBox = $box.find('*[data-testid="address"]');
     ensureSingleElement({ $titleBox });
     let $urlBox = $box.find('> a');
     ensureSingleElement({ $urlBox });
 
-    let $priceBox = $box.find('.TitleBlock__Price-sc-1avkvav-4');
+    let $priceBox = $box.find('*[data-testid="price"]');
     ensureSingleElement({ $priceBox });
     let price = $priceBox.text();
     let url = $urlBox.attr('href');
@@ -75,7 +75,7 @@
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    let $titleBox = $('.TitleBlock__Address-sc-1avkvav-8')
+    let $titleBox = $('*[data-testid="address"]')
     if ($titleBox.length == 0) {
       return;
     }
