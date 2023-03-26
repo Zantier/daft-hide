@@ -19,12 +19,29 @@
 
   $(document).ready(function() {
     houses = getUrlInfo();
-    let $boxes = getBoxes();
-    $boxes.each(function(i, ele) {
-      initializeBox(ele);
-    });
 
-    updatePropertyPage();
+    // Single property, or property search
+    // Logging this first helps to see if the script is completely broken
+    // because daft has updated
+    let pageType = 'none';
+    if ($('.SearchPage__SearchResults-gg133s-3').length > 0) {
+      pageType = 'search';
+    }
+    if ($('.styles__HeaderImageWrapper-sc-15fxapi-14').length > 0) {
+      pageType = 'single';
+    }
+    log(`pageType: ${pageType}`);
+
+    if (pageType === 'search') {
+      let $boxes = getBoxes();
+      $boxes.each(function(i, ele) {
+        initializeBox(ele);
+      });
+    }
+
+    if (pageType === 'single') {
+      updatePropertyPage();
+    }
   });
 
   // Get the list of URLs to ignore.
@@ -169,11 +186,14 @@
     let elementName = Object.keys(elementObject)[0];
     let $element = Object.values(elementObject)[0];
     if ($element.length !== 1) {
-      log(`Wrong ${elementName} count: ${$element.length}`);
+      logError(`Wrong ${elementName} count: ${$element.length}`);
     }
   }
 
   function log(msg) {
+    console.log(`daft_hide: ${msg}`);
+  }
+  function logError(msg) {
     console.error(`daft_hide: ${msg}`);
   }
 })();
