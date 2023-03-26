@@ -13,14 +13,13 @@
 (function() {
   'use strict';
 
-  var housesStoreIndex = 'daft_hide';
+  let housesStoreIndex = 'daft_hide';
   // Indexed by URL.
-  var houses = {};
+  let houses = {};
 
-  $(document).ready(function()
-  {
+  $(document).ready(function() {
     houses = getUrlInfo();
-    var $boxes = getBoxes();
+    let $boxes = getBoxes();
     $boxes.each(function(i, ele) {
       initializeBox(ele);
     });
@@ -29,10 +28,9 @@
   });
 
   // Get the list of URLs to ignore.
-  function getUrlInfo()
-  {
-    var result = {};
-    var catValues = GM_getValue(housesStoreIndex, '');
+  function getUrlInfo() {
+    let result = {};
+    let catValues = GM_getValue(housesStoreIndex, '');
     if (catValues) {
       result = JSON.parse(catValues);
     }
@@ -41,42 +39,41 @@
   }
 
   // Initialize a box containing a house.
-  function initializeBox(ele)
-  {
+  function initializeBox(ele) {
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
-    var $box = $(ele);
-    var $titleBox = $box.find('.TitleBlock__Address-sc-1avkvav-8');
+    let $box = $(ele);
+    let $titleBox = $box.find('.TitleBlock__Address-sc-1avkvav-8');
     ensureSingleElement({ $titleBox });
-    var $urlBox = $box.find('> a');
+    let $urlBox = $box.find('> a');
     ensureSingleElement({ $urlBox });
 
-    var $priceBox = $box.find('.TitleBlock__Price-sc-1avkvav-4');
+    let $priceBox = $box.find('.TitleBlock__Price-sc-1avkvav-4');
     ensureSingleElement({ $priceBox });
-    var price = $priceBox.text();
-    var url = $urlBox.attr('href');
+    let price = $priceBox.text();
+    let url = $urlBox.attr('href');
 
     initializeControls(url, $titleBox, price, $box);
   }
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    var $titleBox = $('.TitleBlock__Address-sc-1avkvav-8')
+    let $titleBox = $('.TitleBlock__Address-sc-1avkvav-8')
     if ($titleBox.length == 0) {
       return;
     }
 
-    var url = window.location.pathname;
+    let url = window.location.pathname;
 
     initializeControls(url, $titleBox, undefined, undefined);
   }
 
   // This will be used both in search results and property page
   function initializeControls(url, $titleBox, price, $hideBox) {
-    var house = houses[url];
-    var desc = '';
+    let house = houses[url];
+    let desc = '';
 
-    var checkedText = 'checked="true"';
+    let checkedText = 'checked="true"';
     if (house) {
       desc = house.desc;
       if (!house.doShow) {
@@ -85,13 +82,13 @@
       }
     }
 
-    var $checkboxContainer = $('<div class="checkbox-container"></div>');
-    var $descContainer = $('<div class="desc-container"></div>');
+    let $checkboxContainer = $('<div class="checkbox-container"></div>');
+    let $descContainer = $('<div class="desc-container"></div>');
     $titleBox.before($checkboxContainer);
     $titleBox.after($descContainer);
 
-    var $checkbox = $('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
-    var $descDiv = $('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
+    let $checkbox = $('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
+    let $descDiv = $('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
 
     $checkboxContainer.append($checkbox);
     if (price) {
@@ -140,13 +137,13 @@
   }
 
   function submitChange(url, $checkbox, $descDiv, $box) {
-    var doShow = $checkbox.prop('checked');
-    var desc = $descDiv.val();
+    let doShow = $checkbox.prop('checked');
+    let desc = $descDiv.val();
 
     showAndHide($box, doShow);
 
-    var house = houses[url];
-    var inList = !doShow || desc;
+    let house = houses[url];
+    let inList = !doShow || desc;
 
     if (inList) {
       houses[url] = {
@@ -162,15 +159,13 @@
   }
 
   // Get jQuery object of all boxes containing a house.
-  function getBoxes()
-  {
+  function getBoxes() {
     return $('.SearchPage__Result-gg133s-2');
   }
 
   // Ensure that the jQuery object has only a single element
   // elementObject: { elementName: $element }
-  function ensureSingleElement(elementObject)
-  {
+  function ensureSingleElement(elementObject) {
     let elementName = Object.keys(elementObject)[0];
     let $element = Object.values(elementObject)[0];
     if ($element.length !== 1) {
@@ -178,8 +173,7 @@
     }
   }
 
-  function log(msg)
-  {
+  function log(msg) {
     console.error(`daft_hide: ${msg}`);
   }
 })();
