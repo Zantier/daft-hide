@@ -142,14 +142,23 @@
       return;
     }
 
+    let selectors = [
+      '*[data-testid="agent-branding-top"]',
+      '*[data-testid="image-container"]',
+      '*[data-testid="card-thumbnails"]',
+      '*[data-testid="price"]',
+      '*[data-testid="card-info"]',
+      '*[data-testid="callout-container"]',
+    ];
+
     if (doShow) {
-      $box.find('.PropertyImage__mainImageContainerStandard').show();
-      $box.find('.PropertyImage__mainImageContainer').show();
-      $box.find('.brandLink').show();
+      for (let selector of selectors) {
+        $box.find(selector).show();
+      }
     } else {
-      $box.find('.PropertyImage__mainImageContainerStandard').hide();
-      $box.find('.PropertyImage__mainImageContainer').hide();
-      $box.find('.brandLink').hide();
+      for (let selector of selectors) {
+        $box.find(selector).hide();
+      }
     }
   }
 
