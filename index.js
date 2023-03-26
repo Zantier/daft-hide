@@ -101,6 +101,15 @@
       submitChange(url, $checkbox, $descDiv, $hideBox);
     });
 
+    // When we click on checkbox or description box, don't follow the property link
+    $checkboxContainer.on('click', function(ev) {
+      ev.stopPropagation();
+    });
+    $descContainer.on('click', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    });
+
     $descContainer.append($descDiv);
     auto_grow($descDiv[0]);
     $descDiv.on('input', function() {
