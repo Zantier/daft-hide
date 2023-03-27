@@ -1,8 +1,8 @@
 # daft-hide
 
-On daft.ie, hide properties, and write notes about them.
+On daft.ie, "hide" properties, and write notes about them.
 
-This is intended to be used in the Tampermonkey extension on Chrome
+To use, copy `index.js` into the Tampermonkey extension for Chrome.
 
 Search page:
 ![search page](search.png)
