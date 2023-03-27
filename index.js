@@ -84,26 +84,29 @@
 
     let $priceBox = $box.find('*[data-testid="price"]');
     ensureSingleElement({ $priceBox });
+    let floorArea = $box.find('*[data-testid="floor-area"]').text();
     let price = $priceBox.text();
     let url = $urlBox.attr('href');
 
-    initializeControls(url, $titleBox, price, $box);
+    initializeControls(url, $titleBox, price, floorArea, $box);
   }
 
   // Show stuff on property page.
   function updatePropertyPage() {
     let $titleBox = $('*[data-testid="address"],*[data-testid="alt-title"]')
-    if ($titleBox.length == 0) {
-      return;
-    }
+    ensureSingleElement({ $titleBox });
 
+    let $priceBox = $('*[data-testid="price"]');
+    ensureSingleElement({ $priceBox });
+    let floorArea = $('*[data-testid="floor-area"]').text();
+    let price = $priceBox.text();
     let url = window.location.pathname;
 
-    initializeControls(url, $titleBox, undefined, undefined);
+    initializeControls(url, $titleBox, price, floorArea, undefined);
   }
 
   // This will be used both in search results and property page
-  function initializeControls(url, $titleBox, price, $hideBox) {
+  function initializeControls(url, $titleBox, priceText, floorAreaText, $hideBox) {
     let house = houses[url];
     let desc = '';
 
@@ -124,10 +127,15 @@
     let $checkbox = $('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
     let $descDiv = $('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
 
-    $checkboxContainer.append($checkbox);
-    if (price) {
-      $checkboxContainer.append($('<span> ' + price + '</span>'));
+    let price = toNumber(priceText);
+    let floorArea = toNumber(floorAreaText);
+    if (!isNaN(price) && !isNaN(floorArea)) {
+      let pricePerFloorArea = Math.round(price/floorArea);
+      priceText += `, €${pricePerFloorArea} per m²`;
     }
+
+    $checkboxContainer.append($checkbox);
+    $checkboxContainer.append($('<span> ' + priceText + '</span>'));
     $checkbox.on('click', function() {
       submitChange(url, $checkbox, $descDiv, $hideBox);
     });
@@ -199,6 +207,19 @@
 
     //console.log(houses);
     GM_setValue(housesStoreIndex, JSON.stringify(houses));
+  }
+
+  // Convert string to number, stripping out any non-digit characters. If there are no
+  // digits, return NaN.
+  function toNumber(str) {
+    let digits = '';
+    for (let ch of str) {
+      if (ch >= '0' && ch <= '9') {
+        digits += ch;
+      }
+    }
+
+    return parseInt(digits);
   }
 
   // Get jQuery object of all boxes containing a house.
