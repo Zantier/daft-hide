@@ -110,6 +110,12 @@
 
   // This will be used both in search results and property page
   function initializeControls(url, $titleBox, priceText, floorAreaText, $hideBox) {
+    // When filtering search results, initialize can run multiple times on the same property
+    let alreadyInitialized = $titleBox.parent().find('.checkbox_ignore').length > 0;
+    if (alreadyInitialized) {
+      return;
+    }
+
     let house = houses[url];
     let desc = '';
 
