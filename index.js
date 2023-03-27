@@ -169,11 +169,14 @@
 
     let selectors = [
       '*[data-testid="agent-branding-top"]',
+      '*[data-testid="agent-branding-top-lite"]',
       '*[data-testid="image-container"]',
       '*[data-testid="card-thumbnails"]',
       '*[data-testid="price"]',
       '*[data-testid="card-info"]',
       '*[data-testid="callout-container"]',
+      '*[data-testid="heart-icon"]',
+      '*[data-testid="info-stamp-featuredLevel-premium-partner"]',
     ];
 
     if (doShow) {
