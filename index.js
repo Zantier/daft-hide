@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    0.8
+// @version    0.9
 // @description  hide properties on daft.ie
 // @match      *://*.daft.ie/*
 // @require    http://code.jquery.com/jquery-3.0.0.min.js
