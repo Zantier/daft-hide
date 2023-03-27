@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    0.7
+// @version    0.8
 // @description  hide properties on daft.ie
 // @match      *://*.daft.ie/*
 // @require    http://code.jquery.com/jquery-3.0.0.min.js
@@ -18,6 +18,23 @@
   let houses = {};
 
   $(document).ready(function() {
+    let rootElement = $('*[data-reactroot]')[0];
+    if (!rootElement) {
+      logError(`React root element not found`);
+      return;
+    }
+
+    // When we click a link in daft, it performs a single mutation event
+    // on the react root element
+    var mutationObserver = new MutationObserver(function(changes) {
+      onLoadPage();
+    });
+    mutationObserver.observe(rootElement, { childList:true, subtree:false });
+
+    onLoadPage();
+  });
+
+  function onLoadPage() {
     houses = getUrlInfo();
 
     // Single property, or property search
@@ -42,7 +59,7 @@
     if (pageType === 'single') {
       updatePropertyPage();
     }
-  });
+  }
 
   // Get the list of URLs to ignore.
   function getUrlInfo() {
