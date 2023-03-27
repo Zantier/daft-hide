@@ -16,25 +16,27 @@
   let housesStoreIndex = 'daft_hide';
   // Indexed by URL.
   let houses = {};
+  let mutationObserver = new MutationObserver(function(changes) {
+    onLoadPage();
+  });
+  let rootElement = undefined;
 
   $(document).ready(function() {
-    let rootElement = $('*[data-reactroot]')[0];
+    rootElement = $('*[data-reactroot]')[0];
     if (!rootElement) {
       logError(`React root element not found`);
       return;
     }
 
-    // When we click a link in daft, it performs a single mutation event
-    // on the react root element
-    var mutationObserver = new MutationObserver(function(changes) {
-      onLoadPage();
-    });
-    mutationObserver.observe(rootElement, { childList:true, subtree:false });
-
     onLoadPage();
   });
 
   function onLoadPage() {
+    mutationObserver.disconnect();
+    // When we click a property on a search page, or click back from a property page,
+    // it performs a single mutation event on the react root element
+    mutationObserver.observe(rootElement, { childList:true, subtree:false });
+
     houses = getUrlInfo();
 
     // Single property, or property search
@@ -50,6 +52,7 @@
     log(`pageType: ${pageType}`);
 
     if (pageType === 'search') {
+      mutationObserver.observe($('*[data-testid="results"]')[0], { childList:true, subtree:false });
       let $boxes = getBoxes();
       $boxes.each(function(i, ele) {
         initializeBox(ele);
