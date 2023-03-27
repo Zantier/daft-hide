@@ -11,3 +11,7 @@ Search page:
 Property page:
 
 ![property page](property.png)
+
+### Data
+
+The code uses Tampermonkey storage to store a mapping of property URLs to some data stored for each property. To view, edit, or delete the raw data, google "Tampermonkey storage tab".
