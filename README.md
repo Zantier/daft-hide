@@ -2,7 +2,8 @@
 
 On daft.ie, "hide" properties, and write notes about them.
 
-To use, copy `index.js` into the Tampermonkey extension for Chrome.
+To use, install the Tampermonkey extension for Chrome. Then in Github, click the file
+`daft-hide.user.js`, followed by the `Raw` button.
 
 Search page:
 
