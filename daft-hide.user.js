@@ -19,15 +19,8 @@
   let mutationObserver = new MutationObserver(function(changes) {
     onLoadPage();
   });
-  let rootElement = undefined;
 
   $(document).ready(function() {
-    rootElement = $('*[data-reactroot]')[0];
-    if (!rootElement) {
-      logError(`React root element not found`);
-      return;
-    }
-
     onLoadPage();
   });
 
@@ -35,7 +28,7 @@
     mutationObserver.disconnect();
     // When we click a property on a search page, or click back from a property page,
     // it performs a single mutation event on the react root element
-    mutationObserver.observe(rootElement, { childList:true, subtree:false });
+    mutationObserver.observe(document.body, { childList:true, subtree:false });
 
     houses = getUrlInfo();
 
