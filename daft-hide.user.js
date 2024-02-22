@@ -229,7 +229,7 @@
 
   // Get jQuery object of all boxes containing a house.
   function getBoxes() {
-    return $('.SearchPage__Result-gg133s-2');
+    return $('*[data-testid="results"] > *');
   }
 
   // Ensure that the jQuery object has only a single element
