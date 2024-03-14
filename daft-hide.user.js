@@ -83,7 +83,7 @@
         let data = initializeBox(box);
         let color = '';
         if (data && data.desc) {
-          color = 'green';
+          color = '#00a0f0';
         }
         if (data && !data.doShow) {
           color = 'grey';
