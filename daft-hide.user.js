@@ -20,9 +20,7 @@
     onLoadPage();
   });
 
-  $(document).ready(function() {
-    onLoadPage();
-  });
+  onLoadPage();
 
   function onLoadPage() {
     mutationObserver.disconnect();
