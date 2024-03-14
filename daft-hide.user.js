@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    1.0.2
+// @version    1.0.3
 // @description  hide properties on daft.ie
 // @author     David Phillips
 // @match      *://*.daft.ie/*
@@ -44,6 +44,7 @@
     }
     let mapSearchWrapper = $('*[data-testid="mapsearch-wrapper"]');
     let mapSearchCarousel = $('*[data-testid="mapsearch-carousel"]');
+    let mapSearch = $('#mapSearch');
     if ($('*[data-testid="mapsearch-wrapper"]').length === 1) {
       pageType = 'map';
     }
@@ -66,10 +67,20 @@
       mutationObserver.observe(mapSearchWrapper[0], { childList: true, subtree: false });
       if (mapSearchCarousel.length > 0) {
           mutationObserver.observe(mapSearchCarousel[0], { childList: true, subtree: false });
+          mutationObserver.observe(mapSearch[0], { childList: true, subtree: false });
       }
       let $boxes = $('*[data-testid="mapsearch-carousel"] > *');
+      let $mapNumbers = $('#mapSearch > *:first-child > *');
       $boxes.each(function (i, ele) {
-        initializeBox(ele);
+        let data = initializeBox(ele);
+        let color = '';
+        if (data && data.desc) {
+          color = 'green';
+        }
+        if (data && !data.doShow) {
+          color = 'grey';
+        }
+        $mapNumbers[i+1].children[0].style.backgroundColor = color;
       });
     }
   }
@@ -102,6 +113,8 @@
     let url = $urlBox.attr('href');
 
     initializeControls(url, $titleBox, price, floorArea, $box);
+    let house = houses[url];
+    return house;
   }
 
   // Show stuff on property page.
