@@ -5,7 +5,6 @@
 // @description  hide properties on daft.ie
 // @author     David Phillips
 // @match      *://*.daft.ie/*
-// @require    http://code.jquery.com/jquery-3.0.0.min.js
 // @grant      GM_getValue
 // @grant      GM_setValue
 // ==/UserScript==
@@ -34,26 +33,26 @@
     // Logging this first helps to see if the script is completely broken
     // because daft has updated
     let pageType = 'none';
-    if ($('*[data-testid="results"]').length === 1) {
+    let resultsElement = document.querySelector('*[data-testid="results"]');
+    if (resultsElement) {
       pageType = 'search';
     }
-    if ($('*[data-testid="header-image-component"]').length === 1) {
+    if (document.querySelector('*[data-testid="header-image-component"]')) {
       pageType = 'single';
     }
-    let mapSearchWrapper = $('*[data-testid="mapsearch-wrapper"]');
-    let mapSearchCarousel = $('*[data-testid="mapsearch-carousel"]');
-    let mapSearch = $('#mapSearch');
-    if ($('*[data-testid="mapsearch-wrapper"]').length === 1) {
+    let mapSearchWrapper = document.querySelector('*[data-testid="mapsearch-wrapper"]');
+    let mapSearchCarousel = document.querySelector('*[data-testid="mapsearch-carousel"]');
+    let mapSearch = document.querySelector('#mapSearch');
+    if (mapSearchWrapper) {
       pageType = 'map';
     }
     log(`pageType: ${pageType}`);
 
     if (pageType === 'search') {
-      mutationObserver.observe($('*[data-testid="results"]')[0], { childList:true, subtree:false });
-      let $boxes = $('*[data-testid="results"] > *');
-      $boxes.each(function(i, ele) {
-        initializeBox(ele);
-      });
+      mutationObserver.observe(resultsElement, { childList:true, subtree:false });
+      for (let box of resultsElement.children) {
+        initializeBox(box);
+      };
     }
 
     if (pageType === 'single') {
@@ -62,15 +61,16 @@
 
     if (pageType === 'map') {
       // After clicking a property on the map, then "Back", the wrapper loads before the carousel
-      mutationObserver.observe(mapSearchWrapper[0], { childList: true, subtree: false });
-      if (mapSearchCarousel.length > 0) {
-          mutationObserver.observe(mapSearchCarousel[0], { childList: true, subtree: false });
-          mutationObserver.observe(mapSearch[0], { childList: true, subtree: false });
+      mutationObserver.observe(mapSearchWrapper, { childList: true, subtree: false });
+      if (mapSearchCarousel) {
+          mutationObserver.observe(mapSearchCarousel, { childList: true, subtree: false });
+          mutationObserver.observe(mapSearch, { childList: true, subtree: false });
       }
-      let $boxes = $('*[data-testid="mapsearch-carousel"] > *');
-      let $mapNumbers = $('#mapSearch > *:first-child > *');
-      $boxes.each(function (i, ele) {
-        let data = initializeBox(ele);
+      let boxes = mapSearchCarousel.children;
+      let mapNumbers = mapSearch.children[0].children;
+      for (let i = 0; i < boxes.length; i++) {
+        let box = boxes[i];
+        let data = initializeBox(box);
         let color = '';
         if (data && data.desc) {
           color = 'green';
@@ -78,8 +78,8 @@
         if (data && !data.doShow) {
           color = 'grey';
         }
-        $mapNumbers[i+1].children[0].style.backgroundColor = color;
-      });
+        mapNumbers[i+1].children[0].style.backgroundColor = color;
+      };
     }
   }
 
@@ -95,44 +95,58 @@
   }
 
   // Initialize a box containing a house.
-  function initializeBox(ele) {
+  function initializeBox(box) {
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
-    let $box = $(ele);
-    let $titleBox = $box.find('*[data-testid="address"]');
-    ensureSingleElement({ $titleBox });
-    let $urlBox = $box.find('> a');
-    ensureSingleElement({ $urlBox });
 
-    let $priceBox = $box.find('*[data-testid="price"]');
-    ensureSingleElement({ $priceBox });
-    let floorArea = $box.find('*[data-testid="floor-area"]').text();
-    let price = $priceBox.text();
-    let url = $urlBox.attr('href');
+    let exists = true;
+    let titleBox = box.querySelector('*[data-testid="address"]');
+    exists = exists && elementExists({ titleBox });
+    let urlBox = box.querySelector(':scope > a');
+    exists = exists && elementExists({ urlBox });
 
-    initializeControls(url, $titleBox, price, floorArea, $box);
+    let priceBox = box.querySelector('*[data-testid="price"]');
+    exists = exists && elementExists({ priceBox });
+
+    if (!exists) {
+      return;
+    }
+
+    let floorAreaBox = box.querySelector('*[data-testid="floor-area"]');
+    let floorArea = floorAreaBox?.textContent;
+    let price = priceBox.textContent;
+    let url = urlBox.getAttribute('href');
+
+    initializeControls(url, titleBox, price, floorArea, box);
     let house = houses[url];
     return house;
   }
 
   // Show stuff on property page.
   function updatePropertyPage() {
-    let $titleBox = $('*[data-testid="address"],*[data-testid="alt-title"]')
-    ensureSingleElement({ $titleBox });
+    let exists = true;
+    let titleBox = document.querySelector('*[data-testid="address"],*[data-testid="alt-title"]')
+    exists = exists && elementExists({ titleBox });
 
-    let $priceBox = $('*[data-testid="price"]');
-    ensureSingleElement({ $priceBox });
-    let floorArea = $('*[data-testid="floor-area"]').text();
-    let price = $priceBox.text();
+    let priceBox = document.querySelector('*[data-testid="price"]');
+    exists = exists && elementExists({ priceBox });
+
+    if (!exists) {
+      return;
+    }
+
+    let floorAreaBox = document.querySelector('*[data-testid="floor-area"]');
+    let floorArea = floorAreaBox?.textContent;
+    let price = priceBox.textContent;
     let url = window.location.pathname;
 
-    initializeControls(url, $titleBox, price, floorArea, undefined);
+    initializeControls(url, titleBox, price, floorArea, undefined);
   }
 
   // This will be used both in search results and property page
-  function initializeControls(url, $titleBox, priceText, floorAreaText, $hideBox) {
+  function initializeControls(url, titleBox, priceText, floorAreaText, hideBox) {
     // When filtering search results, initialize can run multiple times on the same property
-    let alreadyInitialized = $titleBox.parent().find('.checkbox_ignore').length > 0;
+    let alreadyInitialized = titleBox.parentElement.querySelector('.checkbox_ignore');
     if (alreadyInitialized) {
       return;
     }
@@ -144,18 +158,17 @@
     if (house) {
       desc = house.desc;
       if (!house.doShow) {
-        showAndHide($hideBox, false);
+        showAndHide(hideBox, false);
         checkedText = '';
       }
     }
 
-    let $checkboxContainer = $('<div class="checkbox-container"></div>');
-    let $descContainer = $('<div class="desc-container"></div>');
-    $titleBox.before($checkboxContainer);
-    $titleBox.after($descContainer);
-
-    let $checkbox = $('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
-    let $descDiv = $('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
+    let checkboxContainer = createElementFromHTML('<div class="checkbox-container"></div>');
+    let descContainer = createElementFromHTML('<div class="desc-container"></div>');
+    insertBefore(checkboxContainer, titleBox);
+    insertAfter(descContainer, titleBox);
+    let checkbox = createElementFromHTML('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />');
+    let descDiv = createElementFromHTML('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>');
 
     let price = toNumber(priceText);
     let floorArea = toNumber(floorAreaText);
@@ -164,25 +177,25 @@
       priceText += `, €${pricePerFloorArea} per m²`;
     }
 
-    $checkboxContainer.append($checkbox);
-    $checkboxContainer.append($('<span> ' + priceText + '</span>'));
-    $checkbox.on('click', function() {
-      submitChange(url, $checkbox, $descDiv, $hideBox);
+    checkboxContainer.appendChild(checkbox);
+    checkboxContainer.appendChild(createElementFromHTML('<span> ' + priceText + '</span>'));
+    checkbox.addEventListener('click', function() {
+      submitChange(url, checkbox, descDiv, hideBox);
     });
 
     // When we click on checkbox or description box, don't follow the property link
-    $checkboxContainer.on('click', function(ev) {
+    checkboxContainer.addEventListener('click', function(ev) {
       ev.stopPropagation();
     });
-    $descContainer.on('click', function(ev) {
+    descContainer.addEventListener('click', function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
     });
 
-    $descContainer.append($descDiv);
-    auto_grow($descDiv[0]);
-    $descDiv.on('input', function() {
-      submitChange(url, $checkbox, $descDiv, $hideBox);
+    descContainer.appendChild(descDiv);
+    auto_grow(descDiv);
+    descDiv.addEventListener('input', function() {
+      submitChange(url, checkbox, descDiv, hideBox);
       auto_grow(this);
     });
   }
@@ -192,8 +205,8 @@
     element.style.height = (element.scrollHeight)+'px';
   }
 
-  function showAndHide($box, doShow) {
-    if (!$box) {
+  function showAndHide(box, doShow) {
+    if (!box) {
       return;
     }
 
@@ -211,20 +224,26 @@
 
     if (doShow) {
       for (let selector of selectors) {
-        $box.find(selector).show();
+        let elements = box.querySelectorAll(selector);
+        for (let element of elements) {
+          element.style.display = '';
+        }
       }
     } else {
       for (let selector of selectors) {
-        $box.find(selector).hide();
+        let elements = box.querySelectorAll(selector);
+        for (let element of elements) {
+          element.style.display = 'none';
+        }
       }
     }
   }
 
-  function submitChange(url, $checkbox, $descDiv, $box) {
-    let doShow = $checkbox.prop('checked');
-    let desc = $descDiv.val();
+  function submitChange(url, checkbox, descDiv, box) {
+    let doShow = checkbox.checked;
+    let desc = descDiv.value;
 
-    showAndHide($box, doShow);
+    showAndHide(box, doShow);
 
     let house = houses[url];
     let inList = !doShow || desc;
@@ -246,23 +265,41 @@
   // digits, return NaN.
   function toNumber(str) {
     let digits = '';
-    for (let ch of str) {
-      if (ch >= '0' && ch <= '9') {
-        digits += ch;
+    if (str) {
+      for (let ch of str) {
+        if (ch >= '0' && ch <= '9') {
+          digits += ch;
+        }
       }
     }
 
     return parseInt(digits);
   }
 
-  // Ensure that the jQuery object has only a single element
-  // elementObject: { elementName: $element }
-  function ensureSingleElement(elementObject) {
+  // Get (and log) if the element exists
+  // elementObject: { elementName: element }
+  function elementExists(elementObject) {
     let elementName = Object.keys(elementObject)[0];
-    let $element = Object.values(elementObject)[0];
-    if ($element.length !== 1) {
-      logError(`Wrong ${elementName} count: ${$element.length}`);
+    let element = Object.values(elementObject)[0];
+    let exists = Boolean(element);
+    if (!exists) {
+      logError(`Element ${elementName} does not exist`);
     }
+    return exists;
+  }
+
+  // Create a DOM element from the given HTML string
+  function createElementFromHTML(htmlString) {
+    var div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+    return div.firstChild;
+  }
+
+  function insertBefore(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode);
+  }
+  function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
   }
 
   function log(msg) {
