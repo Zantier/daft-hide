@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    0.9
+// @version    1.0
 // @description  hide properties on daft.ie
 // @author     David Phillips
 // @match      *://*.daft.ie/*
@@ -42,11 +42,14 @@
     if ($('*[data-testid="header-image-component"]').length === 1) {
       pageType = 'single';
     }
+    if ($('*[data-testid="mapsearch-wrapper"]').length === 1) {
+      pageType = 'map';
+    }
     log(`pageType: ${pageType}`);
 
     if (pageType === 'search') {
       mutationObserver.observe($('*[data-testid="results"]')[0], { childList:true, subtree:false });
-      let $boxes = getBoxes();
+      let $boxes = $('*[data-testid="results"] > *');
       $boxes.each(function(i, ele) {
         initializeBox(ele);
       });
@@ -54,6 +57,14 @@
 
     if (pageType === 'single') {
       updatePropertyPage();
+    }
+
+    if (pageType === 'map') {
+      mutationObserver.observe($('*[data-testid="mapsearch-carousel"]')[0], { childList: true, subtree: false });
+      let $boxes = $('*[data-testid="mapsearch-carousel"] > *');
+      $boxes.each(function (i, ele) {
+        initializeBox(ele);
+      });
     }
   }
 
@@ -225,11 +236,6 @@
     }
 
     return parseInt(digits);
-  }
-
-  // Get jQuery object of all boxes containing a house.
-  function getBoxes() {
-    return $('*[data-testid="results"] > *');
   }
 
   // Ensure that the jQuery object has only a single element
