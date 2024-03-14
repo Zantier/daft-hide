@@ -93,7 +93,7 @@
 
       let popupBox = mapSearch.querySelector('*[data-testid^="pop-up"]')
       if (popupBox) {
-        initializeBox(popupBox);
+        initializeBox(popupBox, true);
       }
     }
   }
@@ -110,7 +110,7 @@
   }
 
   // Initialize a box containing a house.
-  function initializeBox(box) {
+  function initializeBox(box, isMapPopup) {
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
 
@@ -134,7 +134,7 @@
     let price = priceBox.textContent;
     let url = urlBox.getAttribute('href');
 
-    initializeControls(url, titleBox, price, floorArea, box);
+    initializeControls(url, titleBox, price, floorArea, box, isMapPopup);
     let house = houses[url];
     return house;
   }
@@ -161,7 +161,7 @@
   }
 
   // This will be used both in search results and property page
-  function initializeControls(url, titleBox, priceText, floorAreaText, hideBox) {
+  function initializeControls(url, titleBox, priceText, floorAreaText, hideBox, isMapPopup) {
     // When filtering search results, initialize can run multiple times on the same property
     let alreadyInitialized = titleBox.parentElement.querySelector('.checkbox_ignore');
     if (alreadyInitialized) {
@@ -180,6 +180,15 @@
       }
     }
 
+    if (isMapPopup) {
+      // On map popup, wrap controls to new lines
+      titleBox.parentElement.style.flexWrap = 'wrap';
+      let urlBox = hideBox.querySelector(':scope > a');
+      // Make the box wider, to fit the textbox
+      urlBox.style.display = 'inline-flex';
+      urlBox.style.backgroundColor = 'rgba(255,255,255,0.7)';
+      urlBox.parentElement.parentElement.parentElement.style.backgroundColor = 'transparent';
+    }
     let checkboxContainer = createElementFromHTML('<div class="checkbox-container"></div>');
     let descContainer = createElementFromHTML('<div class="desc-container"></div>');
     insertBefore(checkboxContainer, titleBox);
@@ -195,7 +204,9 @@
     }
 
     checkboxContainer.appendChild(checkbox);
-    checkboxContainer.appendChild(createElementFromHTML('<span> ' + priceText + '</span>'));
+    if (!isMapPopup) {
+      checkboxContainer.appendChild(createElementFromHTML('<span> ' + priceText + '</span>'));
+    }
     checkbox.addEventListener('click', function() {
       submitChange(url, checkbox, descDiv, hideBox);
     });
