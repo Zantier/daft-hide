@@ -89,7 +89,12 @@
           color = 'grey';
         }
         mapPrices[i+1].children[0].style.backgroundColor = color;
-      };
+      }
+
+      let popupBox = mapSearch.querySelector('*[data-testid^="pop-up"]')
+      if (popupBox) {
+        initializeBox(popupBox);
+      }
     }
   }
 
@@ -110,12 +115,14 @@
     // then a line for the price, and a line for the address
 
     let exists = true;
-    let titleBox = box.querySelector('*[data-testid="address"]');
+    // address on search page, sub-line-2-info on map popup
+    let titleBox = box.querySelector('*[data-testid="address"],*[data-testid="sub-line-2-info"]');
     exists = exists && elementExists({ titleBox });
     let urlBox = box.querySelector(':scope > a');
     exists = exists && elementExists({ urlBox });
 
-    let priceBox = box.querySelector('*[data-testid="price"]');
+    // price on search page, sub-title on map popup
+    let priceBox = box.querySelector('*[data-testid="price"],*[data-testid="sub-title"]');
     exists = exists && elementExists({ priceBox });
 
     if (!exists) {
