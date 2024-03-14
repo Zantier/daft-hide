@@ -65,13 +65,19 @@
       if (!elementExists({ mapSearchCarousel })) {
         return;
       }
+      mutationObserver.observe(mapSearchCarousel, { childList: true, subtree: false });
       if (!elementExists({ mapSearch })) {
         return;
       }
-      mutationObserver.observe(mapSearchCarousel, { childList: true, subtree: false });
       mutationObserver.observe(mapSearch, { childList: true, subtree: false });
+      let mapPricesParent = mapSearch.children[0];
+      if (!elementExists({ mapPricesParent })) {
+        return;
+      }
+      mutationObserver.observe(mapPricesParent, { childList: true, subtree: false });
       let boxes = mapSearchCarousel.children;
-      let mapNumbers = mapSearch.children[0].children;
+      let mapPrices = mapPricesParent.children;
+      console.log(`boxes ${boxes.length}, mapPrices ${mapPrices.length}`);
       for (let i = 0; i < boxes.length; i++) {
         let box = boxes[i];
         let data = initializeBox(box);
@@ -82,7 +88,7 @@
         if (data && !data.doShow) {
           color = 'grey';
         }
-        mapNumbers[i+1].children[0].style.backgroundColor = color;
+        mapPrices[i+1].children[0].style.backgroundColor = color;
       };
     }
   }
