@@ -62,10 +62,14 @@
     if (pageType === 'map') {
       // After clicking a property on the map, then "Back", the wrapper loads before the carousel
       mutationObserver.observe(mapSearchWrapper, { childList: true, subtree: false });
-      if (mapSearchCarousel) {
-          mutationObserver.observe(mapSearchCarousel, { childList: true, subtree: false });
-          mutationObserver.observe(mapSearch, { childList: true, subtree: false });
+      if (!elementExists({ mapSearchCarousel })) {
+        return;
       }
+      if (!elementExists({ mapSearch })) {
+        return;
+      }
+      mutationObserver.observe(mapSearchCarousel, { childList: true, subtree: false });
+      mutationObserver.observe(mapSearch, { childList: true, subtree: false });
       let boxes = mapSearchCarousel.children;
       let mapNumbers = mapSearch.children[0].children;
       for (let i = 0; i < boxes.length; i++) {
