@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    1.0
+// @version    1.0.2
 // @description  hide properties on daft.ie
 // @author     David Phillips
 // @match      *://*.daft.ie/*
@@ -42,6 +42,8 @@
     if ($('*[data-testid="header-image-component"]').length === 1) {
       pageType = 'single';
     }
+    let mapSearchWrapper = $('*[data-testid="mapsearch-wrapper"]');
+    let mapSearchCarousel = $('*[data-testid="mapsearch-carousel"]');
     if ($('*[data-testid="mapsearch-wrapper"]').length === 1) {
       pageType = 'map';
     }
@@ -60,7 +62,11 @@
     }
 
     if (pageType === 'map') {
-      mutationObserver.observe($('*[data-testid="mapsearch-carousel"]')[0], { childList: true, subtree: false });
+      // After clicking a property on the map, then "Back", the wrapper loads before the carousel
+      mutationObserver.observe(mapSearchWrapper[0], { childList: true, subtree: false });
+      if (mapSearchCarousel.length > 0) {
+          mutationObserver.observe(mapSearchCarousel[0], { childList: true, subtree: false });
+      }
       let $boxes = $('*[data-testid="mapsearch-carousel"] > *');
       $boxes.each(function (i, ele) {
         initializeBox(ele);
