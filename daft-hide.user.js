@@ -42,6 +42,10 @@
   styleTag.textContent = `.thumbsup,.thumbsdown { text-shadow:0 0 0 #d0d0d0; }
     .value1>.thumbsup { text-shadow:0 0 0 #00ff00; }
     .value-1>.thumbsdown { text-shadow:0 0 0 #ff0000; }
+    .map2 { background-color: #00a0f0d0; border-color: #00a0f0d0; }
+    .map1 { background-color: #2180c4a0; border-color: #2180c4a0; }
+    .map0 { background-color: #4170c480; border-color: #4170c480; }
+    .map-1 { background-color: #a0a0a060; border-color: #a0a0a060; }
   `;
   document.head.appendChild(styleTag);
   console.log(document.head);
@@ -114,15 +118,17 @@
       for (let i = 0; i < boxes.length; i++) {
         let box = boxes[i];
         let data = initializeBox(box);
-        let color = '';
-        if (data && data.desc) {
-          color = '#00a0f0';
+        let value = 0;
+        if (data) {
+          value = data.value;
         }
-        if (data && data.value === -1) {
-          color = 'grey';
+        if (value === 1) {
+          value = 2;
         }
-        /** @type {HTMLElement} */
-        (mapPrices[i+1].children[0]).style.backgroundColor = color;
+        if (data && data.desc && value === 0) {
+          value = 1;
+        }
+        setMapPriceStyle(mapPrices[i+1], value);
       }
 
       let popupBox = mapSearch.querySelector('*[data-testid^="pop-up"]')
@@ -130,6 +136,17 @@
         initializeBox(popupBox, true);
       }
     }
+  }
+
+  /**
+   * @param {Element} mapPrice
+   * @param {number} value
+   */
+  function setMapPriceStyle(mapPrice, value) {
+    let child = mapPrice.children[0];
+    // 1 has description, 2 has thumbs up
+    child.classList.remove('map2', 'map1', 'map0', 'map-1');
+    child.classList.add(`map${value}`);
   }
 
   /**
