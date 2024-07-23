@@ -12,8 +12,8 @@
 /**
  * @typedef StoreData
  * @type {object}
- * @property {2} version - Whether the house is good or bad
- * @property {Object.<string, House>} urls - description of the house
+ * @property {2} version
+ * @property {Object.<string, House>} urls
  */
 
 /**
