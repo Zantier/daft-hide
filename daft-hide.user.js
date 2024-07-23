@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       daft.ie hide
 // @namespace  http://daft-hide.daav.ee/
-// @version    1.0.3
+// @version    1.1.0
 // @description  hide properties on daft.ie
 // @author     David Phillips
 // @match      *://*.daft.ie/*
