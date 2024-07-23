@@ -38,6 +38,14 @@
 
   onLoadPage();
 
+  const styleTag = document.createElement('style');
+  styleTag.textContent = `.thumbsup,.thumbsdown { text-shadow:0 0 0 #d0d0d0; }
+    .value1>.thumbsup { text-shadow:0 0 0 #00ff00; }
+    .value-1>.thumbsdown { text-shadow:0 0 0 #ff0000; }
+  `;
+  document.head.appendChild(styleTag);
+  console.log(document.head);
+
   function onLoadPage() {
     mutationObserver.disconnect();
     // When we click a property on a search page, or click back from a property page,
@@ -136,6 +144,7 @@
 
     let data = JSON.parse(catValues);
     let result = upgradeVersion2(data);
+    console.log(result);
     return result;
   }
 
@@ -206,7 +215,7 @@
   function initializeControls(url, titleBox, priceText, floorAreaText, hideBox, isMapPopup=false) {
     let titleParent = assertParent(titleBox);
     // When filtering search results, initialize can run multiple times on the same property
-    let alreadyInitialized = titleParent.querySelector('.checkbox_ignore');
+    let alreadyInitialized = titleParent.querySelector('.checkbox-container');
     if (alreadyInitialized) {
       return;
     }
@@ -235,11 +244,15 @@
         assertParent(assertParent(assertParent(urlBox))).style.backgroundColor = 'transparent';
       }
     }
-    let checkboxContainer = /** @type {ChildNode} */ (createElementFromHTML('<div class="checkbox-container"></div>'));
+    let thumbContainer = /** @type {HTMLDivElement} */ (createElementFromHTML('<div class="checkbox-container"></div>'));
+    if (house) {
+      setThumbValue(thumbContainer, house.value);
+    }
     let descContainer = /** @type {ChildNode} */ (createElementFromHTML('<div class="desc-container"></div>'));
-    insertBefore(checkboxContainer, titleBox);
+    insertBefore(thumbContainer, titleBox);
     insertAfter(descContainer, titleBox);
-    let checkbox = /** @type {HTMLInputElement} */ (createElementFromHTML('<input class="checkbox_ignore" type="checkbox" ' + checkedText + ' />'));
+    let thumbsup = /** @type {HTMLDivElement} */ (createElementFromHTML('<div class="thumbsup" style="display:inline-block; color:transparent; cursor:pointer;">👍</div>'));
+    let thumbsdown = /** @type {HTMLDivElement} */ (createElementFromHTML('<div class="thumbsdown" style="display:inline-block; color:transparent; cursor:pointer;">👎</div>'));
     let descDiv = /** @type {HTMLTextAreaElement} */ (createElementFromHTML('<textarea class="desc" style="resize:none; width:400px">' + desc + '</textarea>'));
 
     let price = toNumber(priceText);
@@ -249,18 +262,40 @@
       priceText += `, €${pricePerFloorArea} per m²`;
     }
 
-    checkboxContainer.appendChild(checkbox);
+    thumbContainer.appendChild(thumbsup);
+    thumbContainer.appendChild(thumbsdown);
     if (!isMapPopup) {
-      checkboxContainer.appendChild(createElementFromHTML('<span> ' + priceText + '</span>'));
+      thumbContainer.appendChild(createElementFromHTML('<span> ' + priceText + '</span>'));
     }
-    checkbox.addEventListener('click', function() {
-      submitChange(url, checkbox, descDiv, hideBox);
+
+    thumbsup.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      let value = getThumbValue(thumbContainer);
+      if (value === 1) {
+        value = 0;
+      } else {
+        value = 1;
+      }
+      setThumbValue(thumbContainer, value);
+      submitChange(url, thumbContainer, descDiv, hideBox);
+    });
+    thumbsdown.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+
+      let value = getThumbValue(thumbContainer);
+      if (value === -1) {
+        value = 0;
+      } else {
+        value = -1;
+      }
+      setThumbValue(thumbContainer, value);
+      submitChange(url, thumbContainer, descDiv, hideBox);
     });
 
-    // When we click on checkbox or description box, don't follow the property link
-    checkboxContainer.addEventListener('click', function(ev) {
-      ev.stopPropagation();
-    });
+    // When we click on thumbs or description box, don't follow the property link
     descContainer.addEventListener('click', function(ev) {
       ev.preventDefault();
       ev.stopPropagation();
@@ -269,7 +304,7 @@
     descContainer.appendChild(descDiv);
     auto_grow(descDiv);
     descDiv.addEventListener('input', function() {
-      submitChange(url, checkbox, descDiv, hideBox);
+      submitChange(url, thumbContainer, descDiv, hideBox);
       auto_grow(this);
     });
   }
@@ -326,21 +361,21 @@
 
   /**
    * @param {string} url
-   * @param {HTMLInputElement} checkbox
+   * @param {HTMLDivElement} thumbContainer
    * @param {HTMLTextAreaElement} descElement
    * @param {Element | undefined} box
    */
-  function submitChange(url, checkbox, descElement, box) {
-    let doShow = checkbox.checked;
+  function submitChange(url, thumbContainer, descElement, box) {
+    let value = getThumbValue(thumbContainer);
     let desc = descElement.value;
 
-    showAndHide(box, doShow);
+    showAndHide(box, value !== -1);
 
-    let inList = !doShow || desc;
+    let inList = value !== 0 || desc;
 
     if (inList) {
       houses[url] = {
-        value: doShow ? 1 : -1,
+        value: value,
         desc: desc,
       };
     } else {
@@ -467,5 +502,27 @@
     }
 
     return element.parentElement;
+  }
+
+  /**
+   * @param {HTMLDivElement} thumbContainer
+   */
+  function getThumbValue(thumbContainer) {
+    if (thumbContainer.classList.contains('value1')) {
+      return 1;
+    }
+    if (thumbContainer.classList.contains('value-1')) {
+      return -1;
+    }
+    return 0;
+  }
+
+  /**
+   * @param {HTMLDivElement} thumbContainer
+   * @param {number} value
+   */
+  function setThumbValue(thumbContainer, value) {
+    thumbContainer.classList.remove('value1', 'value0', 'value-1');
+    thumbContainer.classList.add(`value${value}`);
   }
 })();
