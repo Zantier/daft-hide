@@ -175,14 +175,19 @@
     // Each box has an image (either to the left, or large image above)
     // then a line for the price, and a line for the address
 
+    // Ignore adverts
+    if (box.querySelector('.adunitContainer')) {
+      return;
+    }
+
     // address on search page, sub-line-2-info on map popup
-    let titleBox = box.querySelector('*[data-testid="address"],*[data-testid="sub-line-2-info"]');
+    let titleBox = box.querySelector('*[data-tracking="srp_address"],*[data-testid="sub-line-2-info"]');
     elementExists({ titleBox });
     let urlBox = box.querySelector(':scope > a');
     elementExists({ urlBox });
 
     // price on search page, sub-title on map popup
-    let priceBox = box.querySelector('*[data-testid="price"],*[data-testid="sub-title"]');
+    let priceBox = box.querySelector('*[data-tracking="srp_price"],*[data-testid="sub-title"]');
     elementExists({ priceBox });
 
     if (!titleBox || !urlBox || !priceBox) {
